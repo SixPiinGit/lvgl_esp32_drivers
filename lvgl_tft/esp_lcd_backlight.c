@@ -19,6 +19,8 @@ typedef struct {
 
 static const char *TAG = "disp_backlight";
 
+disp_backlight_h *bckl_handle;
+
 disp_backlight_h disp_backlight_new(const disp_backlight_config_t *config)
 {
     // Check input parameters
@@ -66,21 +68,25 @@ disp_backlight_h disp_backlight_new(const disp_backlight_config_t *config)
         ESP_ERROR_CHECK(gpio_set_direction(config->gpio_num, GPIO_MODE_OUTPUT));
         gpio_matrix_out(config->gpio_num, SIG_GPIO_OUT_IDX, config->output_invert, false);
     }
-
+    bckl_handle = bckl_dev;
     return (disp_backlight_h)bckl_dev;
 }
 
 void disp_backlight_set(disp_backlight_h bckl, int brightness_percent)
 {
     // Check input paramters
-    if (bckl == NULL)
+    if ((bckl == NULL) && (bckl_handle == NULL))
         return;
+
     if (brightness_percent > 100)
         brightness_percent = 100;
     if (brightness_percent < 0)
         brightness_percent = 0;
-
-    disp_backlight_t *bckl_dev = (disp_backlight_t *) bckl;
+    disp_backlight_t *bckl_dev;
+    if (bckl != NULL)
+        bckl_dev = (disp_backlight_t*)bckl;
+    else
+        bckl_dev = (disp_backlight_t*)bckl_handle;
     ESP_LOGI(TAG, "Setting LCD backlight: %d%%", brightness_percent);
 
     if (bckl_dev->pwm_control) {
@@ -94,10 +100,14 @@ void disp_backlight_set(disp_backlight_h bckl, int brightness_percent)
 
 void disp_backlight_delete(disp_backlight_h bckl)
 {
-    if (bckl == NULL)
+    if ((bckl == NULL) && (bckl_handle == NULL))
         return;
+    disp_backlight_t *bckl_dev;
+    if (bckl != NULL)
+        bckl_dev = (disp_backlight_t*)bckl;
+    else
+        bckl_dev = (disp_backlight_t*)bckl_handle;
 
-    disp_backlight_t *bckl_dev = (disp_backlight_t *) bckl;
     if (bckl_dev->pwm_control) {
         ledc_stop(LEDC_LOW_SPEED_MODE, bckl_dev->index, 0);
     } else {
