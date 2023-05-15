@@ -94,7 +94,7 @@ extern "C" {
  * GLOBAL PROTOTYPES
  **********************/
 
-void lvgl_i2c_locking(void* leader);
+void bsp_i2c_locking(void* leader);
 
 /* Initialize detected SPI and I2C bus and devices */
 void lvgl_driver_init(void);

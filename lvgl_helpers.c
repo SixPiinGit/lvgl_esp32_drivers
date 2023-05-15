@@ -15,7 +15,7 @@
 
 #include "lvgl_spi_conf.h"
 
-#include "lvgl_i2c/i2c_manager.h"
+#include "i2c_manager.h"
 
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
 #include "lvgl.h"
